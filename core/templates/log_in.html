@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In - Plot Weaver</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(184, 134, 11, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(218, 165, 32, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .box {
+            background: linear-gradient(145deg, #111111 0%, #1a1a1a 50%, #0f0f0f 100%);
+            border: 1px solid rgba(184, 134, 11, 0.3);
+            border-radius: 4px;
+            box-shadow: 0 0 60px rgba(184, 134, 11, 0.1), inset 0 1px 0 rgba(255, 215, 0, 0.1);
+            padding: 60px 50px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+            animation: reveal 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .box::before, .box::after {
+            content: '◆';
+            position: absolute;
+            color: rgba(184, 134, 11, 0.4);
+            font-size: 12px;
+        }
+        .box::before { top: 20px; left: 20px; }
+        .box::after { bottom: 20px; right: 20px; }
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(40px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        form h1 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 36px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+        }
+        .ornament-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.6), transparent);
+            margin: 25px 0;
+            position: relative;
+        }
+        .ornament-line::before {
+            content: '✦';
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(184, 134, 11, 0.6);
+            background: #111;
+            padding: 0 15px;
+            font-size: 10px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(184, 134, 11, 0.3);
+            color: #e8e0cc;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            outline: none;
+            letter-spacing: 1px;
+            transition: all 0.4s ease;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 15px rgba(184, 134, 11, 0.2);
+            background: rgba(184, 134, 11, 0.05);
+        }
+        input::placeholder {
+            color: rgba(184, 134, 11, 0.4);
+            font-style: italic;
+        }
+        .btn { margin-top: 30px; }
+        button {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid rgba(184, 134, 11, 0.4);
+            background: rgba(184, 134, 11, 0.1);
+            color: #d4af37;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: rgba(184, 134, 11, 0.15);
+            transition: left 0.4s ease;
+        }
+        button:hover::before { left: 0; }
+        button:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(184, 134, 11, 0.2);
+            color: #f0d878;
+        }
+        .or {
+            text-align: center;
+            color: rgba(184, 134, 11, 0.4);
+            font-size: 13px;
+            letter-spacing: 4px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .or::before, .or::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 35%;
+            height: 1px;
+            background: rgba(184, 134, 11, 0.2);
+        }
+        .or::before { left: 0; }
+        .or::after { right: 0; }
+        .guest-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .guest-link a {
+            color: rgba(184, 134, 11, 0.5);
+            text-decoration: none;
+            font-size: 14px;
+            letter-spacing: 2px;
+            transition: color 0.3s;
+        }
+        .guest-link a:hover { color: #d4af37; }
+        .error-msg {
+            color: #c44;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <form id="loginForm" method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <h1>Log In</h1>
+            <div class="ornament-line"></div>
+
+            <div class="error-msg" id="errorMsg">
+                {% if form.errors %}
+                    Invalid username or password
+                {% endif %}
+            </div>
+
+            <input type="text" id="username" name="username" placeholder="Username or Email" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+
+            <div class="btn">
+                <button type="submit">Log In</button>
+
+                <div class="or">OR</div>
+
+                <button type="button" onclick="window.location.href='{% url 'signup' %}'">Sign Up</button>
+            </div>
+        </form>
+
+        <div class="guest-link">
+            <a href="{% url 'explore' %}">Continue as Guest →</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+            
+            const formData = new FormData(this);
+            
+            fetch('{% url "login" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/profile/';
+                } else {
+                    errorMsg.textContent = data.error || 'Invalid credentials. Please try again.';
+                    errorMsg.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

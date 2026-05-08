@@ -1,0 +1,718 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Plot Weaver</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            padding: 30px 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(184, 134, 11, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(218, 165, 32, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+        .admin-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: reveal 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .admin-header h1 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 36px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+        }
+        .admin-header p {
+            color: rgba(184, 134, 11, 0.5);
+            font-size: 16px;
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(180, 50, 50, 0.1);
+            border: 1px solid rgba(180, 50, 50, 0.4);
+            padding: 8px 20px;
+            margin-top: 15px;
+            color: #c95555;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(145deg, #111111 0%, #1a1a1a 100%);
+            border: 1px solid rgba(184, 134, 11, 0.2);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+        .stat-card:hover {
+            border-color: rgba(184, 134, 11, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(184, 134, 11, 0.1);
+        }
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 32px;
+            font-weight: 600;
+        }
+        .stat-label {
+            color: rgba(184, 134, 11, 0.5);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+        .accounts-section {
+            background: linear-gradient(145deg, #111111 0%, #1a1a1a 50%, #0f0f0f 100%);
+            border: 1px solid rgba(184, 134, 11, 0.2);
+            padding: 30px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 22px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .back-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(184, 134, 11, 0.4);
+            background: transparent;
+            color: #d4af37;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.4s ease;
+            display: inline-block;
+        }
+        .back-btn:hover {
+            background: rgba(184, 134, 11, 0.15);
+            border-color: #d4af37;
+        }
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .accounts-table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: collapse;
+        }
+        .accounts-table th {
+            color: rgba(184, 134, 11, 0.6);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(184, 134, 11, 0.3);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .accounts-table td {
+            color: #e8e0cc;
+            font-size: 14px;
+            padding: 14px 10px;
+            border-bottom: 1px solid rgba(184, 134, 11, 0.1);
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+        .accounts-table tr:hover td {
+            background: rgba(184, 134, 11, 0.03);
+        }
+        .delete-btn {
+            padding: 6px 14px;
+            border: 1px solid rgba(180, 50, 50, 0.5);
+            background: transparent;
+            color: #c95555;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 12px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .delete-btn:hover {
+            background: rgba(180, 50, 50, 0.2);
+            border-color: #c95555;
+            box-shadow: 0 0 10px rgba(180, 50, 50, 0.2);
+        }
+        .no-accounts {
+            text-align: center;
+            padding: 50px 20px;
+            color: rgba(184, 134, 11, 0.4);
+        }
+        .no-accounts-icon { font-size: 48px; margin-bottom: 15px; }
+        .no-accounts h3 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .no-accounts p { font-size: 15px; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal {
+            background: linear-gradient(145deg, #111111 0%, #1a1a1a 100%);
+            border: 1px solid rgba(184, 134, 11, 0.4);
+            padding: 35px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: modalReveal 0.4s ease;
+        }
+        @keyframes modalReveal {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal h2 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 22px;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+        .modal p {
+            color: rgba(212, 175, 55, 0.6);
+            font-size: 15px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .modal-buttons { display: flex; gap: 12px; }
+        .modal-btn {
+            flex: 1;
+            padding: 10px 18px;
+            border: 1px solid rgba(184, 134, 11, 0.4);
+            background: transparent;
+            color: #d4af37;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .modal-btn:hover {
+            background: rgba(184, 134, 11, 0.15);
+            border-color: #d4af37;
+        }
+        .modal-btn.confirm-delete {
+            border-color: rgba(180, 50, 50, 0.5);
+            color: #c95555;
+        }
+        .modal-btn.confirm-delete:hover {
+            background: rgba(180, 50, 50, 0.2);
+            border-color: #c95555;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid rgba(184, 134, 11, 0.5);
+            color: #d4af37;
+            padding: 12px 20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 15px;
+            letter-spacing: 1px;
+            z-index: 3000;
+            animation: slideInRight 0.4s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .password-cell {
+            color: rgba(212, 175, 55, 0.8);
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        .protected-badge {
+            color: rgba(184, 134, 11, 0.4);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .login-gate {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #0a0a0a;
+            z-index: 5000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+        }
+        .login-gate.active { display: flex; }
+        .login-gate .gate-icon {
+            width: 64px; height: 64px;
+            border: 2px solid rgba(184, 134, 11, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #d4af37;
+            margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+        }
+        .login-gate h2 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 2rem;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+        .login-gate p {
+            color: rgba(184, 134, 11, 0.5);
+            font-size: 1.1rem;
+            margin-bottom: 32px;
+            max-width: 500px;
+            line-height: 1.7;
+        }
+        .login-gate .gate-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+        .login-gate .gate-actions a, .login-gate .gate-actions button {
+            padding: 12px 32px;
+            border: 1px solid rgba(184, 134, 11, 0.4);
+            background: transparent;
+            color: #d4af37;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .login-gate .gate-actions a:hover, .login-gate .gate-actions button:hover {
+            background: rgba(184, 134, 11, 0.15);
+            border-color: #d4af37;
+        }
+        .login-gate .gate-actions .primary {
+            background: rgba(184, 134, 11, 0.1);
+            border-color: rgba(184, 134, 11, 0.6);
+        }
+        .login-form-box {
+            background: linear-gradient(145deg, #111111 0%, #1a1a1a 50%, #0f0f0f 100%);
+            border: 1px solid rgba(184, 134, 11, 0.3);
+            border-radius: 4px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 420px;
+            margin-bottom: 24px;
+            animation: reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .login-form-box h3 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            font-size: 24px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .login-form-box input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(184, 134, 11, 0.3);
+            color: #e8e0cc;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            outline: none;
+            letter-spacing: 0.5px;
+            transition: all 0.4s ease;
+        }
+        .login-form-box input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 15px rgba(184, 134, 11, 0.2);
+            background: rgba(184, 134, 11, 0.05);
+        }
+        .login-form-box input::placeholder {
+            color: rgba(184, 134, 11, 0.3);
+            font-style: italic;
+        }
+        .login-form-box button {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid rgba(184, 134, 11, 0.4);
+            background: rgba(184, 134, 11, 0.1);
+            color: #d4af37;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 15px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-form-box button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: rgba(184, 134, 11, 0.15);
+            transition: left 0.4s ease;
+        }
+        .login-form-box button:hover::before { left: 0; }
+        .login-form-box button:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(184, 134, 11, 0.2);
+            color: #f0d878;
+        }
+        .login-error {
+            color: #c44;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 12px;
+            display: none;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header h1 { font-size: 28px; }
+            .accounts-section { padding: 20px 15px; }
+            .section-header { flex-direction: column; align-items: flex-start; }
+            .accounts-table th, .accounts-table td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+            .login-form-box { padding: 28px 20px; }
+            .login-gate h2 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-gate" id="loginGate">
+        <div class="gate-icon">⚜</div>
+        <h2>Admin Access</h2>
+        <p>Enter admin credentials to access the dashboard.</p>
+
+        <div class="login-form-box">
+            <h3>Log In</h3>
+            <div class="login-error" id="loginError">Invalid admin credentials</div>
+            <input type="email" id="adminEmail" placeholder="Admin Email" value="">
+            <input type="password" id="adminPassword" placeholder="Password">
+            <button type="button" id="adminLoginBtn">Enter Dashboard</button>
+        </div>
+
+        <div class="gate-actions">
+            <a href="{% url 'index' %}">Back to Home</a>
+            <a href="{% url 'login' %}">User Login</a>
+        </div>
+    </div>
+
+    <div class="container" id="dashboardContent" style="display:none;">
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <p>Account Management Center</p>
+            <div class="admin-badge">
+                <span>⚜</span>
+                <span>System Administrator</span>
+                <span>⚜</span>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number" id="totalAccounts">0</div>
+                <div class="stat-label">Total Accounts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="newToday">0</div>
+                <div class="stat-label">New Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="adminCount">1</div>
+                <div class="stat-label">Administrators</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalStories">0</div>
+                <div class="stat-label">Total Stories</div>
+            </div>
+        </div>
+
+        <div class="accounts-section">
+            <div class="section-header">
+                <h2>◆ Registered Accounts ◆</h2>
+                <a href="{% url 'index' %}" class="back-btn">← Back to Home</a>
+            </div>
+
+            <div class="table-wrapper">
+                <div id="accountsTableContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h2>⚠ Delete Account</h2>
+            <p>Are you sure you want to permanently delete this account? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn" onclick="hideDeleteModal()">Cancel</button>
+                <button class="modal-btn confirm-delete" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── ADMIN CREDENTIALS ───
+        const ADMIN_EMAIL = 'ogutuishmael25@gmail.com';
+        const ADMIN_PASSWORD = 'ishma254';
+
+        const loginGate = document.getElementById('loginGate');
+        const dashboardContent = document.getElementById('dashboardContent');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const loginError = document.getElementById('loginError');
+
+        // Admin login handler
+        adminLoginBtn.addEventListener('click', function() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+
+            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                loginError.style.display = 'none';
+                loginGate.classList.remove('active');
+                loginGate.style.display = 'none';
+                dashboardContent.style.display = 'block';
+                loadAccounts();
+            } else {
+                loginError.style.display = 'block';
+                setTimeout(() => { loginError.style.display = 'none'; }, 3000);
+            }
+        });
+
+        document.getElementById('adminPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') adminLoginBtn.click();
+        });
+
+        // ─── DASHBOARD LOGIC ───
+        let users = [];
+        let deleteTargetIndex = null;
+
+        function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = '◆ ' + message + ' ◆';
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.4s ease reverse';
+                setTimeout(() => toast.remove(), 400);
+            }, 2500);
+        }
+
+        function loadAccounts() {
+            // Fetch users from Django backend
+            fetch('/admin/users/')
+                .then(response => response.json())
+                .then(data => {
+                    users = data.users || [];
+                    document.getElementById('totalAccounts').textContent = users.length;
+
+                    const today = new Date().toDateString();
+                    const todayCount = users.filter(u => {
+                        const userDate = u.date_joined ? new Date(u.date_joined).toDateString() : today;
+                        return userDate === today;
+                    }).length;
+                    document.getElementById('newToday').textContent = todayCount;
+
+                    // Count stories
+                    let storyCount = 0;
+                    users.forEach(u => {
+                        storyCount += u.story_count || 0;
+                    });
+                    document.getElementById('totalStories').textContent = storyCount;
+
+                    renderTable();
+                })
+                .catch(error => console.error('Error loading accounts:', error));
+        }
+
+        function renderTable() {
+            const container = document.getElementById('accountsTableContainer');
+            if (users.length === 0) {
+                container.innerHTML = `
+                    <div class="no-accounts">
+                        <div class="no-accounts-icon">◈</div>
+                        <h3>No Accounts Found</h3>
+                        <p>No user accounts have been registered yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table class="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>First Name</th>
+                            <th>Second Name</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Stories</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach((user, index) => {
+                const isAdmin = user.email === ADMIN_EMAIL;
+                tableHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${escapeHtml(user.first_name) || '-'}</td>
+                        <td>${escapeHtml(user.last_name) || '-'}</td>
+                        <td>${escapeHtml(user.email) || '-'}</td>
+                        <td>${escapeHtml(user.contact) || '-'}</td>
+                        <td>${user.story_count || 0}</td>
+                        <td>
+                            ${isAdmin ?
+                                '<span class="protected-badge">◆ PROTECTED</span>' :
+                                `<button class="delete-btn" onclick="showDeleteModal(${index})">✕ Delete</button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            container.innerHTML = tableHTML;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showDeleteModal(index) {
+            deleteTargetIndex = index;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            deleteTargetIndex = null;
+        }
+
+        function confirmDelete() {
+            if (deleteTargetIndex !== null && deleteTargetIndex >= 0 && deleteTargetIndex < users.length) {
+                const deletedUser = users[deleteTargetIndex];
+                if (deletedUser.email === ADMIN_EMAIL) {
+                    showToast('Cannot delete admin account');
+                    hideDeleteModal();
+                    return;
+                }
+                // Delete user from Django backend
+                fetch('/admin/users/' + deletedUser.id + '/delete/', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadAccounts();
+                        showToast('Account deleted: ' + (deletedUser.email || 'Unknown'));
+                    }
+                })
+                .catch(error => console.error('Error deleting user:', error));
+            }
+            hideDeleteModal();
+        }
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) hideDeleteModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hideDeleteModal();
+        });
+    </script>
+</body>
+</html>

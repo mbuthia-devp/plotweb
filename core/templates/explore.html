@@ -1,0 +1,555 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plot Weaver - Explore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-light: #F4E4BC;
+            --gold-mid: #D4AF37;
+            --gold-deep: #B8860B;
+            --gold-dark: #8B6914;
+            --black: #0D0D0D;
+            --black-soft: #141414;
+            --black-raised: #1A1A1A;
+            --charcoal: #2A2A2A;
+            --text-primary: #E8E0D0;
+            --text-secondary: #A89F8F;
+            --text-muted: #6B6255;
+            --border-subtle: rgba(212, 175, 55, 0.15);
+            --border-glow: rgba(212, 175, 55, 0.3);
+            --shadow-gold: 0 4px 30px rgba(212, 175, 55, 0.15);
+            --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.6);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Lato', sans-serif; background: var(--black); color: var(--text-primary); min-height: 100vh; }
+
+        .header {
+            height: 64px;
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black) 100%);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: relative;
+            z-index: 100;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 32px;
+            right: 32px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 20%, var(--gold-mid) 80%, transparent 100%);
+            opacity: 0.4;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon {
+            width: 38px; height: 38px;
+            border: 2px solid var(--gold-mid);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--gold-mid);
+            box-shadow: 0 0 16px rgba(212, 175, 55, 0.2);
+        }
+        .brand-text h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .brand-text span {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 1px;
+        }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .btn {
+            padding: 8px 20px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            box-shadow: var(--shadow-gold);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-deep) 50%, var(--gold-dark) 100%);
+            border-color: var(--gold-deep);
+            color: var(--black);
+            font-weight: 700;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-mid) 50%, var(--gold-deep) 100%);
+            color: var(--black);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+        .user-badge { display: flex; align-items: center; gap: 8px; color: var(--gold-mid); font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; }
+        .user-badge .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dark), var(--gold-deep)); display: flex; align-items: center; justify-content: center; color: var(--black); font-weight: 700; font-size: 0.8rem; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+        .page-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .page-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 0 0 40px;
+            opacity: 0.4;
+        }
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-mid), transparent);
+        }
+        .divider-icon {
+            color: var(--gold-mid);
+            font-size: 0.7rem;
+        }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .story-card {
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .story-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 50%, transparent 100%);
+            opacity: 0.5;
+        }
+        .story-card:hover {
+            border-color: var(--gold-mid);
+            box-shadow: var(--shadow-gold);
+            transform: translateY(-4px);
+        }
+        .story-card .story-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--gold-light);
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .story-card .story-author {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            color: var(--gold-mid);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .story-card .story-meta {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .story-card .story-preview {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .story-card .read-more {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            color: var(--gold-mid);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            color: var(--gold-dark);
+            margin-bottom: 20px;
+        }
+        .empty-state h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .empty-state p {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .modal-overlay.active { display: block; }
+        .modal-content {
+            max-width: 900px;
+            margin: 40px auto;
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 48px 56px;
+            position: relative;
+        }
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20px; right: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 50%, transparent 100%);
+            opacity: 0.5;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .modal-close:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            box-shadow: var(--shadow-gold);
+        }
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--gold-light);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .modal-author {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            color: var(--gold-mid);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .modal-meta {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .chapter-block {
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .chapter-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .chapter-block h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: var(--gold-mid);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .chapter-block .chapter-content {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            line-height: 2;
+            white-space: pre-wrap;
+        }
+
+        .public-cta {
+            background: linear-gradient(135deg, var(--black-raised) 0%, var(--charcoal) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .public-cta-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        .public-cta-text strong {
+            color: var(--gold-light);
+        }
+        .public-cta-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 0 20px; height: 56px; }
+            .header::after { left: 20px; right: 20px; }
+            .brand-text span { display: none; }
+            .container { padding: 24px 16px; }
+            .page-title { font-size: 1.3rem; }
+            .stories-grid { grid-template-columns: 1fr; gap: 16px; }
+            .story-card { padding: 20px; }
+            .modal-content { margin: 20px 16px; padding: 28px 24px; }
+            .modal-title { font-size: 1.5rem; }
+            .chapter-block .chapter-content { font-size: 1rem; line-height: 1.8; }
+            .public-cta { flex-direction: column; text-align: center; }
+            .user-badge span { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="brand">
+            <div class="brand-icon">✦</div>
+            <div class="brand-text">
+                <h1>PLOT WEAVER</h1>
+                <span>Everyone has a story</span>
+            </div>
+        </div>
+        <div class="header-actions" id="headerActions">
+            <a href="{% url 'index' %}" class="btn">Home</a>
+            <a href="{% url 'explore' %}" class="btn btn-primary">Explore</a>
+            <a href="{% url 'write' %}" class="btn">Write</a>
+                <a href="{% url 'profile' %}" class="user-badge">
+                    <div class="avatar"></div>
+                    <span></span>
+                </a>
+               
+            
+                <a href="{% url 'login' %}" class="btn">Log In</a>
+                <a href="{% url 'signup' %}" class="btn">Sign Up</a>
+            
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">Explore Stories</h1>
+        <p class="page-subtitle">Stories shared by fellow writers</p>
+        <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-icon">✦</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <div class="public-cta" id="publicCta">
+            <div class="public-cta-text">
+                ✦ <strong>Welcome, Guest!</strong> Sign up or log in to write and share your own stories with the community.
+            </div>
+            <div class="public-cta-actions">
+                <a href="login.html" class="btn">Log In</a>
+                <a href="signup.html" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+
+        <div class="stories-grid" id="storiesGrid">
+        
+                <div class="story-card" onclick="openStory({{ story.id }})">
+                    <div class="story-title"></div>
+                    <div class="story-author"></div>
+                    <div class="story-meta">
+                    
+                                    <span style="display:none;"></span>
+                        
+                    </div>
+                    <div class="story-preview">
+                    
+                    </div>
+                    <div class="read-more">Read Story <span>→</span></div>
+                </div>
+            
+                <div class="empty-state" style="grid-column:1/-1;">
+                    <div class="empty-icon">✦</div>
+                    <h3>No Stories Yet</h3>
+                    <p>Be the first to share a story with the world.</p>
+                    <a href="write.html" class="btn btn-primary">Start Writing</a>
+                </div>
+        
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">×</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Store stories data from Django
+        const storiesData = [
+            {% for story in stories %}
+            {
+                id: {{ story.id }},
+                title: "{{ story.title|escapejs|default:'Untitled Story' }}",
+                author: "{{ story.user.first_name|escapejs|default:'Anonymous' }} {{ story.user.last_name|escapejs|default:'' }}",
+                chapters: [
+                    {% for chapter in story.chapters.all %}
+                    {
+                        id: {{ chapter.id }},
+                        title: "{{ chapter.title|escapejs|default:'Chapter ' }}",
+                        content: "{{ chapter.content|escapejs }}"
+                    }{% if not forloop.last %},{% endif %}
+                    {% empty %}{% endfor %}
+                ]
+            }{% if not forloop.last %},{% endif %}
+            {% empty %}
+            // no stories
+            {% endfor %}
+        ];
+
+        function openStory(storyId) {
+            const story = storiesData.find(s => s.id === storyId);
+            if (!story) return;
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = '';
+
+            const title = document.createElement('h2');
+            title.className = 'modal-title';
+            title.textContent = story.title || 'Untitled Story';
+
+            const author = document.createElement('div');
+            author.className = 'modal-author';
+            author.textContent = 'By ' + story.author;
+
+            const meta = document.createElement('div');
+            meta.className = 'modal-meta';
+            const chapterCount = story.chapters.length;
+            let wordCount = 0;
+            story.chapters.forEach(c => {
+                wordCount += (c.content || '').trim().split(/\s+/).length;
+            });
+            meta.textContent = `${chapterCount} Chapter${chapterCount !== 1 ? 's' : ''} · ${wordCount.toLocaleString()} Words`;
+
+            modalBody.appendChild(title);
+            modalBody.appendChild(author);
+            modalBody.appendChild(meta);
+
+            story.chapters.forEach(chapter => {
+                const block = document.createElement('div');
+                block.className = 'chapter-block';
+
+                const chTitle = document.createElement('h3');
+                chTitle.textContent = chapter.title || `Chapter ${chapter.id}`;
+
+                const chContent = document.createElement('div');
+                chContent.className = 'chapter-content';
+                chContent.textContent = chapter.content || '(No content)';
+
+                block.appendChild(chTitle);
+                block.appendChild(chContent);
+                modalBody.appendChild(block);
+            });
+
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+</html>

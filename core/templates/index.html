@@ -1,0 +1,929 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plot Weaver - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-light: #F4E4BC;
+            --gold-mid: #D4AF37;
+            --gold-deep: #B8860B;
+            --gold-dark: #8B6914;
+            --black: #0D0D0D;
+            --black-soft: #141414;
+            --black-raised: #1A1A1A;
+            --charcoal: #2A2A2A;
+            --text-primary: #E8E0D0;
+            --text-secondary: #A89F8F;
+            --text-muted: #6B6255;
+            --border-subtle: rgba(212, 175, 55, 0.15);
+            --border-glow: rgba(212, 175, 55, 0.3);
+            --shadow-gold: 0 4px 30px rgba(212, 175, 55, 0.15);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--black);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ─── NAVBAR ─── */
+        .navbar {
+            height: 64px;
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black) 100%);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+        }
+        .navbar::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 32px;
+            right: 32px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 20%, var(--gold-mid) 80%, transparent 100%);
+            opacity: 0.4;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .nav-brand-icon {
+            width: 38px; height: 38px;
+            border: 2px solid var(--gold-mid);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--gold-mid);
+            box-shadow: 0 0 16px rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+        .nav-brand:hover .nav-brand-icon {
+            box-shadow: 0 0 24px rgba(212, 175, 55, 0.4);
+            transform: scale(1.05);
+        }
+        .nav-brand-text h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .nav-brand-text span {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 1px;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+        }
+        .nav-menu li a, .nav-menu li button {
+            padding: 8px 20px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .nav-menu li a:hover, .nav-menu li button:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            box-shadow: var(--shadow-gold);
+        }
+        .nav-menu li .btn-primary {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-deep) 50%, var(--gold-dark) 100%);
+            border-color: var(--gold-deep);
+            color: var(--black);
+            font-weight: 700;
+        }
+        .nav-menu li .btn-primary:hover {
+            background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-mid) 50%, var(--gold-deep) 100%);
+            color: var(--black);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gold-mid);
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            padding: 6px 14px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .user-badge:hover {
+            border-color: var(--gold-mid);
+            box-shadow: var(--shadow-gold);
+        }
+        .user-badge .avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--black);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-subtle);
+            color: var(--gold-mid);
+            font-size: 1.2rem;
+            width: 38px; height: 38px;
+            border-radius: 6px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+        .mobile-menu-btn:hover {
+            border-color: var(--gold-mid);
+            box-shadow: var(--shadow-gold);
+        }
+        .mobile-menu-btn.active {
+            background: var(--gold-mid);
+            color: var(--black);
+            border-color: var(--gold-mid);
+        }
+
+        .mobile-drawer {
+            display: none;
+            position: fixed;
+            top: 64px;
+            right: 0;
+            bottom: 0;
+            width: 280px;
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black) 100%);
+            border-left: 1px solid var(--border-subtle);
+            z-index: 999;
+            flex-direction: column;
+            padding: 24px;
+            gap: 8px;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -4px 0 30px rgba(0,0,0,0.8);
+        }
+        .mobile-drawer.open {
+            transform: translateX(0);
+        }
+        .mobile-drawer a, .mobile-drawer button {
+            padding: 14px 20px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: left;
+        }
+        .mobile-drawer a:hover, .mobile-drawer button:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .mobile-drawer a.active {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            background: rgba(212, 175, 55, 0.08);
+            box-shadow: var(--shadow-gold);
+        }
+        .mobile-drawer .drawer-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-mid), transparent);
+            opacity: 0.3;
+            margin: 8px 0;
+        }
+        .mobile-drawer .drawer-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--charcoal) 0%, var(--black-raised) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .mobile-drawer .drawer-user:hover {
+            border-color: var(--gold-mid);
+            box-shadow: var(--shadow-gold);
+        }
+        .mobile-drawer .drawer-user .avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--black);
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .mobile-drawer .drawer-user .info {
+            display: flex;
+            flex-direction: column;
+        }
+        .mobile-drawer .drawer-user .name {
+            font-family: 'Cinzel', serif;
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        .mobile-drawer .drawer-user .email {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 998;
+        }
+        .drawer-overlay.active { display: block; }
+
+        /* ─── HERO ─── */
+        .hero {
+            padding: 140px 32px 80px;
+            text-align: center;
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black) 100%);
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(184, 134, 11, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(218, 165, 32, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: var(--gold-light);
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            position: relative;
+        }
+        .hero p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+            position: relative;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        .hero-actions a {
+            padding: 14px 36px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .hero-actions a:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            box-shadow: var(--shadow-gold);
+        }
+        .hero-actions a.primary {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-deep) 50%, var(--gold-dark) 100%);
+            border-color: var(--gold-deep);
+            color: var(--black);
+            font-weight: 700;
+        }
+        .hero-actions a.primary:hover {
+            background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-mid) 50%, var(--gold-deep) 100%);
+            color: var(--black);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ─── SECTIONS ─── */
+        .section {
+            padding: 80px 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 0 auto 48px;
+            opacity: 0.4;
+            max-width: 400px;
+        }
+        .section-divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-mid), transparent);
+        }
+        .section-divider-icon {
+            color: var(--gold-mid);
+            font-size: 0.7rem;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        .benefit-card {
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .benefit-card:hover {
+            border-color: var(--gold-mid);
+            box-shadow: var(--shadow-gold);
+            transform: translateY(-4px);
+        }
+        .benefit-card .icon {
+            font-size: 2.5rem;
+            color: var(--gold-mid);
+            margin-bottom: 16px;
+        }
+        .benefit-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--gold-light);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .benefit-card p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .values-list {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .value-item {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            padding: 24px;
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .value-item:hover {
+            border-color: var(--border-glow);
+        }
+        .value-item .value-icon {
+            font-size: 1.8rem;
+            color: var(--gold-mid);
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .value-item h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            color: var(--gold-light);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .value-item p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .mission-vision {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .mv-card {
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .mv-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 50%, transparent 100%);
+            opacity: 0.5;
+        }
+        .mv-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .mv-card p {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            text-align: center;
+        }
+        .impact-item {
+            padding: 32px 24px;
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+        }
+        .impact-item .number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--gold-mid);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .impact-item .label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .about-content h5 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+        .about-content p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .footer {
+            background: linear-gradient(180deg, var(--black-raised) 0%, var(--black) 100%);
+            border-top: 1px solid var(--border-subtle);
+            padding: 60px 32px 30px;
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+        .footer-section h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .footer-section p, .footer-section a {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-section a:hover { color: var(--gold-mid); }
+        .footer-section ul { list-style: none; }
+        .footer-section ul li { margin-bottom: 8px; }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .footer-bottom a {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-bottom a:hover { color: var(--gold-mid); }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0 16px; }
+            .nav-brand-text span { display: none; }
+            .nav-menu { display: none; }
+            .mobile-menu-btn { display: flex; }
+            .mobile-drawer { display: flex; }
+            .hero { padding: 120px 16px 60px; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1.05rem; }
+            .section { padding: 60px 16px; }
+            .mission-vision { grid-template-columns: 1fr; }
+            .footer-container { gap: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'index' %}" class="nav-brand">
+            <div class="nav-brand-icon">✦</div>
+            <div class="nav-brand-text">
+                <h1>PLOT WEAVER</h1>
+                <span>Everyone has a story</span>
+            </div>
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">☰</button>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'explore' %}">Explore</a></li>
+            <li><a href="{% url 'write' %}">Write</a></li>
+        
+                <li>
+                    <a href="{% url 'profile' %}" class="user-badge">
+                        <div class="avatar"></div>
+                        <span></span>
+                    </a>
+                </li>
+                <li>
+                    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">Log Out</button>
+                    </form>
+                </li>
+        
+                <li><a href="{% url 'login' %}">Log In</a></li>
+                <li><a href="{% url 'signup' %}" class="btn-primary">Sign Up</a></li>
+        </ul>
+    </nav>
+
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div id="drawerUserSection">
+                <a href="{% url 'profile' %}" class="drawer-user">
+                    <div class="avatar"></div>
+                    <div class="info">
+                        <span class="name"></span>
+                        <span class="email"></span>
+                    </div>
+                </a>
+                <form method="post" action="{% url 'logout' %}" style="margin-top:8px;">
+                    {% csrf_token %}
+                    <button type="submit" style="width:100%;padding:14px 20px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-secondary);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:6px;">Log Out</button>
+                </form>
+            
+                <a href="{% url 'login' %}" style="padding:14px 20px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-secondary);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:6px;text-decoration:none;display:flex;align-items:center;justify-content:space-between;">Log In</a>
+                <a href="{% url 'signup' %}" style="padding:14px 20px;border:1px solid var(--gold-deep);background:linear-gradient(135deg,var(--gold-dark),var(--gold-deep));color:var(--black);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:6px;text-decoration:none;display:flex;align-items:center;justify-content:space-between;font-weight:700;">Sign Up</a>
+        
+        </div>
+        <div class="drawer-divider"></div>
+        <a href="{% url 'index' %}">Home</a>
+        <a href="{% url 'explore' %}">Explore</a>
+        <a href="{% url 'write' %}">Write</a>
+        <div class="drawer-divider"></div>
+    </div>
+
+    <div class="hero">
+        <h1>Weave Your Story</h1>
+        <p>Unleash your creativity and weave captivating stories. Whether you're a seasoned writer or just starting out, Plot Weaver is here to help you craft compelling narratives.</p>
+        <div class="hero-actions">
+            <a href="{% url 'signup' %}" class="primary">Start Writing</a>
+            <a href="{% url 'explore' %}">Explore Stories</a>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Benefits</h2>
+        <div class="section-divider">
+            <div class="section-divider-line"></div>
+            <span class="section-divider-icon">✦</span>
+            <div class="section-divider-line"></div>
+        </div>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="icon">✦</div>
+                <h3>Unleash Creativity</h3>
+                <p>Dive into a world of endless possibilities and let your imagination run wild with Plot Weaver.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="icon">✦</div>
+                <h3>Organized Writing</h3>
+                <p>Manage multiple stories and chapters with our intuitive, collapsible sidebar editor.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="icon">✦</div>
+                <h3>Share & Explore</h3>
+                <p>Publish your stories to the community and discover works from fellow writers worldwide.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Our Values</h2>
+        <div class="section-divider">
+            <div class="section-divider-line"></div>
+            <span class="section-divider-icon">✦</span>
+            <div class="section-divider-line"></div>
+        </div>
+        <div class="values-list">
+            <div class="value-item">
+                <div class="value-icon">✦</div>
+                <div>
+                    <h4>Fostering Imagination</h4>
+                    <p>We are committed to sparking creativity, offering writers and authors the space to explore and express their narratives freely.</p>
+                </div>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">✦</div>
+                <div>
+                    <h4>Pioneering Fiction</h4>
+                    <p>We push the boundaries of creative storytelling, providing a platform for innovative and bold narratives.</p>
+                </div>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">✦</div>
+                <div>
+                    <h4>Demystifying Story Creation</h4>
+                    <p>We make storytelling approachable and enjoyable for everyone, regardless of experience level.</p>
+                </div>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">✦</div>
+                <div>
+                    <h4>Cultivating Community</h4>
+                    <p>We believe in building a supportive network of writers and readers who learn from each other and grow together.</p>
+                </div>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">✦</div>
+                <div>
+                    <h4>Promoting Diversity</h4>
+                    <p>We advocate for diverse storytelling, recognizing the unique importance of every writer's voice and story.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Mission & Vision</h2>
+        <div class="section-divider">
+            <div class="section-divider-line"></div>
+            <span class="section-divider-icon">✦</span>
+            <div class="section-divider-line"></div>
+        </div>
+        <div class="mission-vision">
+            <div class="mv-card">
+                <h3>Our Mission</h3>
+                <p>"Empower every person to turn imaginative stories into worlds of pages."</p>
+            </div>
+            <div class="mv-card">
+                <h3>Our Vision</h3>
+                <p>"A global community where writers create enhancement towards the creative thinking of storytelling — a world where no story dies unwritten."</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Our Impact</h2>
+        <div class="section-divider">
+            <div class="section-divider-line"></div>
+            <span class="section-divider-icon">✦</span>
+            <div class="section-divider-line"></div>
+        </div>
+        <div class="impact-grid">
+            <div class="impact-item">
+                <div class="number" id="impactWriters">0</div>
+                <div class="label">Writers</div>
+            </div>
+            <div class="impact-item">
+                <div class="number" id="impactStories">0</div>
+                <div class="label">Stories</div>
+            </div>
+            <div class="impact-item">
+                <div class="number" id="impactChapters">0</div>
+                <div class="label">Chapters</div>
+            </div>
+            <div class="impact-item">
+                <div class="number">12+</div>
+                <div class="label">Countries</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">About Us</h2>
+        <div class="section-divider">
+            <div class="section-divider-line"></div>
+            <span class="section-divider-icon">✦</span>
+            <div class="section-divider-line"></div>
+        </div>
+        <div class="about-content">
+            <h5>We support educators and fiction writers to improve storytelling skills.</h5>
+            <p>Create and share stories for inspiration and entertainment.</p>
+            <p>Support educators and writers in developing creative writing skills.</p>
+            <p>Build a community where educators and writers can share ideas.</p>
+            <p>Collaborate with creative writing programs to enhance writing abilities.</p>
+            <p style="margin-top: 24px; color: var(--gold-mid);">We welcome educators, writers and foundations to help shape the future of storytelling.</p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>PLOTWEAVER</h4>
+                <p>Empowering writers to tell their stories.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="explore.html">Explore</a></li>
+                    <li><a href="write.html">Write</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <ul>
+                    <li><a href="#">Facebook</a></li>
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">LinkedIn</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>Email: ogutuishmael25@gmail.com</p>
+                <p>Phone: +254 110673887</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Cookie Settings</a>
+        </div>
+    </footer>
+
+    <script>
+        // ─── MOBILE DRAWER ───
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        let drawerOpen = false;
+
+        function toggleDrawer() {
+            drawerOpen = !drawerOpen;
+            if (drawerOpen) {
+                mobileDrawer.classList.add('open');
+                drawerOverlay.classList.add('active');
+                mobileMenuBtn.classList.add('active');
+                mobileMenuBtn.innerHTML = '✕';
+                document.body.style.overflow = 'hidden';
+            } else {
+                closeDrawer();
+            }
+        }
+
+        function closeDrawer() {
+            drawerOpen = false;
+            mobileDrawer.classList.remove('open');
+            drawerOverlay.classList.remove('active');
+            mobileMenuBtn.classList.remove('active');
+            mobileMenuBtn.innerHTML = '☰';
+            document.body.style.overflow = '';
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleDrawer);
+        drawerOverlay.addEventListener('click', closeDrawer);
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) closeDrawer();
+        });
+
+        // ─── IMPACT STATS ───
+        function loadStats() {
+            fetch('/api/stats/')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('impactWriters').textContent = data.stories || 0;
+                    document.getElementById('impactStories').textContent = data.stories || 0;
+                    document.getElementById('impactChapters').textContent = data.chapters || 0;
+                })
+                .catch(error => console.error('Error loading stats:', error));
+        }
+        loadStats();
+    </script>
+</body>
+</html>

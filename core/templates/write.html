@@ -1,0 +1,618 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plot Weaver - Write</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-light: #F4E4BC;
+            --gold-mid: #D4AF37;
+            --gold-deep: #B8860B;
+            --gold-dark: #8B6914;
+            --black: #0D0D0D;
+            --black-soft: #141414;
+            --black-raised: #1A1A1A;
+            --charcoal: #2A2A2A;
+            --text-primary: #E8E0D0;
+            --text-secondary: #A89F8F;
+            --text-muted: #6B6255;
+            --border-subtle: rgba(212, 175, 55, 0.15);
+            --border-glow: rgba(212, 175, 55, 0.3);
+            --shadow-gold: 0 4px 30px rgba(212, 175, 55, 0.15);
+            --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.6);
+            --sw: 260px;
+            --cw: 280px;
+            --cw-collapsed: 44px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Lato', sans-serif; background: var(--black); color: var(--text-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        .header { height: 64px; background: linear-gradient(180deg, var(--black-soft) 0%, var(--black) 100%); border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: relative; z-index: 100; flex-shrink: 0; }
+        .header::after { content: ''; position: absolute; bottom: -1px; left: 32px; right: 32px; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 20%, var(--gold-mid) 80%, transparent 100%); opacity: 0.4; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon { width: 38px; height: 38px; border: 2px solid var(--gold-mid); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--gold-mid); box-shadow: 0 0 16px rgba(212, 175, 55, 0.2); flex-shrink: 0; }
+        .brand-text h1 { font-family: 'Cinzel', serif; font-size: 1.15rem; font-weight: 600; color: var(--gold-light); letter-spacing: 3px; text-transform: uppercase; }
+        .brand-text span { font-family: 'Playfair Display', serif; font-size: 0.65rem; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; display: block; margin-top: 1px; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .btn { padding: 8px 20px; border: 1px solid var(--border-subtle); background: transparent; color: var(--text-secondary); font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 4px; transition: all 0.3s ease; position: relative; overflow: hidden; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent); transition: left 0.5s ease; }
+        .btn:hover::before { left: 100%; }
+        .btn:hover { border-color: var(--gold-mid); color: var(--gold-light); box-shadow: var(--shadow-gold); }
+        .btn-primary { background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-deep) 50%, var(--gold-dark) 100%); border-color: var(--gold-deep); color: var(--black); font-weight: 700; }
+        .btn-primary:hover { background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-mid) 50%, var(--gold-deep) 100%); color: var(--black); box-shadow: 0 0 30px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: 1px solid var(--border-subtle); color: var(--gold-mid); font-size: 1.2rem; width: 38px; height: 38px; border-radius: 6px; cursor: pointer; align-items: center; justify-content: center; }
+        .user-badge { display: flex; align-items: center; gap: 8px; color: var(--gold-mid); font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; }
+        .user-badge .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dark), var(--gold-deep)); display: flex; align-items: center; justify-content: center; color: var(--black); font-weight: 700; font-size: 0.8rem; }
+
+        .main-container { display: flex; flex: 1; overflow: hidden; background: var(--black); position: relative; }
+
+        .sidebar { display: flex; flex-direction: column; background: linear-gradient(180deg, var(--black-soft) 0%, var(--black) 100%); border-right: 1px solid var(--border-subtle); position: relative; flex-shrink: 0; transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; z-index: 50; }
+        .sidebar.collapsed { width: var(--cw-collapsed) !important; }
+        .sidebar.collapsed .sidebar-inner { opacity: 0; pointer-events: none; }
+        .sidebar-inner { display: flex; flex-direction: column; height: 100%; padding: 20px 16px; opacity: 1; transition: opacity 0.2s ease; overflow: hidden; }
+
+        .sidebar-toggle { position: absolute; top: 50%; transform: translateY(-50%); width: 18px; height: 56px; background: var(--black-raised); border: 1px solid var(--border-subtle); border-left: none; border-radius: 0 6px 6px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.3s ease; color: var(--text-muted); font-size: 0.65rem; }
+        .sidebar-toggle:hover { background: var(--charcoal); color: var(--gold-mid); border-color: var(--gold-dark); }
+        .stories-sidebar .sidebar-toggle { right: -18px; }
+        .chapters-sidebar .sidebar-toggle { right: -18px; }
+        .sidebar.collapsed .sidebar-toggle { right: 0; border-radius: 0 4px 4px 0; }
+        .sidebar-toggle .toggle-icon { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar.collapsed .toggle-icon { transform: rotate(180deg); }
+
+        .collapsed-indicator { display: none; opacity: 0; }
+        .sidebar.collapsed .collapsed-indicator { display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 8px; opacity: 1; transition: opacity 0.3s ease 0.1s; }
+        .collapsed-indicator .ind-icon { color: var(--gold-dark); font-size: 1rem; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 4px; }
+        .collapsed-indicator .ind-count { font-family: 'Cinzel', serif; font-size: 0.6rem; color: var(--text-muted); writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 2px; }
+
+        .stories-sidebar { width: var(--sw); }
+        .stories-sidebar .sidebar-inner { min-width: var(--sw); }
+        .stories-sidebar::before { content: ''; position: absolute; top: 0; right: -1px; width: 1px; height: 100%; background: linear-gradient(180deg, transparent 0%, var(--gold-mid) 30%, var(--gold-mid) 70%, transparent 100%); opacity: 0.3; }
+        .stories-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+        .stories-header h2 { font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 600; color: var(--gold-mid); letter-spacing: 4px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+        .stories-header h2::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-mid) 0%, transparent 100%); opacity: 0.3; }
+        .stories-list { flex: 1; overflow-y: auto; margin-bottom: 12px; padding-right: 4px; }
+        .stories-list::-webkit-scrollbar { width: 4px; }
+        .stories-list::-webkit-scrollbar-track { background: transparent; }
+        .stories-list::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 2px; }
+
+        .story-item { padding: 10px 12px; margin-bottom: 6px; background: var(--black-raised); border: 1px solid var(--border-subtle); border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; position: relative; }
+        .story-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; border-radius: 6px 0 0 6px; transition: background 0.3s ease; }
+        .story-item:hover { border-color: var(--border-glow); background: var(--charcoal); transform: translateX(4px); }
+        .story-item:hover::before { background: var(--gold-mid); }
+        .story-item.active { background: linear-gradient(135deg, var(--charcoal) 0%, var(--black-raised) 100%); border-color: var(--gold-mid); box-shadow: var(--shadow-gold); }
+        .story-item.active::before { background: var(--gold-mid); }
+        .story-item .story-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+        .story-item .story-title-text { font-family: 'Playfair Display', serif; font-size: 0.85rem; color: var(--text-primary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .story-item.active .story-title-text { color: var(--gold-light); }
+        .story-item .story-meta { font-family: 'Cinzel', serif; font-size: 0.55rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+        .story-item .delete-story-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease; flex-shrink: 0; margin-left: 4px; }
+        .story-item .delete-story-btn:hover { color: #C0392B; background: rgba(192, 57, 43, 0.1); }
+        .add-story-btn { width: 100%; padding: 10px; background: transparent; color: var(--gold-mid); border: 1px dashed var(--gold-dark); border-radius: 6px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; transition: all 0.3s ease; }
+        .add-story-btn:hover { background: rgba(212, 175, 55, 0.05); border-color: var(--gold-mid); color: var(--gold-light); box-shadow: var(--shadow-gold); }
+
+        .chapters-sidebar { width: var(--cw); }
+        .chapters-sidebar .sidebar-inner { min-width: var(--cw); }
+        .chapters-sidebar::before { content: ''; position: absolute; top: 0; right: -1px; width: 1px; height: 100%; background: linear-gradient(180deg, transparent 0%, var(--gold-mid) 30%, var(--gold-mid) 70%, transparent 100%); opacity: 0.3; }
+        .chapters-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+        .chapters-header h2 { font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 600; color: var(--gold-mid); letter-spacing: 4px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+        .chapters-header h2::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-mid) 0%, transparent 100%); opacity: 0.3; }
+        .chapter-list { flex: 1; overflow-y: auto; margin-bottom: 12px; padding-right: 4px; }
+        .chapter-list::-webkit-scrollbar { width: 4px; }
+        .chapter-list::-webkit-scrollbar-track { background: transparent; }
+        .chapter-list::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 2px; }
+
+        .chapter-item { padding: 10px 12px; margin-bottom: 6px; background: var(--black-raised); border: 1px solid var(--border-subtle); border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; position: relative; }
+        .chapter-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; border-radius: 6px 0 0 6px; transition: background 0.3s ease; }
+        .chapter-item:hover { border-color: var(--border-glow); background: var(--charcoal); transform: translateX(4px); }
+        .chapter-item:hover::before { background: var(--gold-mid); }
+        .chapter-item.active { background: linear-gradient(135deg, var(--charcoal) 0%, var(--black-raised) 100%); border-color: var(--gold-mid); box-shadow: var(--shadow-gold); }
+        .chapter-item.active::before { background: var(--gold-mid); }
+        .chapter-item .chapter-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+        .chapter-item .chapter-number { font-family: 'Cinzel', serif; font-size: 0.55rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+        .chapter-item .chapter-title { font-family: 'Playfair Display', serif; font-size: 0.8rem; color: var(--text-primary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chapter-item.active .chapter-title { color: var(--gold-light); }
+        .chapter-item .delete-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease; flex-shrink: 0; margin-left: 4px; }
+        .chapter-item .delete-btn:hover { color: #C0392B; background: rgba(192, 57, 43, 0.1); }
+        .add-chapter-btn { width: 100%; padding: 10px; background: transparent; color: var(--gold-mid); border: 1px dashed var(--gold-dark); border-radius: 6px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; transition: all 0.3s ease; }
+        .add-chapter-btn:hover { background: rgba(212, 175, 55, 0.05); border-color: var(--gold-mid); color: var(--gold-light); box-shadow: var(--shadow-gold); }
+
+        .editor-area { flex: 1; padding: 24px 32px; overflow-y: auto; background: var(--black); position: relative; min-width: 0; }
+        .editor-area::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 50%, transparent 100%); opacity: 0.1; }
+        .editor-card { background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 36px 44px; max-width: 100%; width: 100%; margin: 0 auto; box-shadow: var(--shadow-deep); position: relative; }
+        .editor-card::before { content: ''; position: absolute; top: 0; left: 20px; right: 20px; height: 2px; background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 50%, transparent 100%); opacity: 0.5; }
+        .editor-card::after { content: '✦'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--black-soft); padding: 0 16px; color: var(--gold-mid); font-size: 0.8rem; }
+
+        .form-group { margin-bottom: 24px; position: relative; }
+        .form-group label { display: block; margin-bottom: 8px; font-family: 'Cinzel', serif; font-size: 0.6rem; font-weight: 600; color: var(--gold-mid); letter-spacing: 4px; text-transform: uppercase; }
+        .form-group input[type="text"], .form-group textarea { width: 100%; padding: 14px 18px; background: var(--black); border: 1px solid var(--border-subtle); border-radius: 8px; color: var(--text-primary); font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.9; transition: all 0.3s ease; outline: none; }
+        .form-group input[type="text"]::placeholder, .form-group textarea::placeholder { color: var(--text-muted); font-style: italic; }
+        .form-group input[type="text"]:focus, .form-group textarea:focus { border-color: var(--gold-mid); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1), inset 0 1px 2px rgba(0,0,0,0.2); }
+
+        .story-title-input { font-size: 2rem !important; font-weight: 700; text-align: center; letter-spacing: 1px; border-bottom: 2px solid var(--border-subtle) !important; border-radius: 0 !important; border-left: none !important; border-right: none !important; border-top: none !important; background: transparent !important; padding: 12px 18px 16px !important; }
+        .story-title-input:focus { border-bottom-color: var(--gold-mid) !important; box-shadow: none !important; }
+        .chapter-title-input { font-size: 1.4rem !important; font-weight: 600; }
+        .form-group textarea { min-height: calc(100vh - 380px); resize: vertical; line-height: 2; font-size: 1.15rem; }
+
+        .status-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+        .status-left { font-family: 'Cinzel', serif; font-size: 0.6rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+        .status-right { font-family: 'Lato', sans-serif; font-size: 0.75rem; color: var(--gold-mid); font-weight: 300; }
+        .word-count { font-family: 'Cinzel', serif; font-size: 0.6rem; color: var(--text-muted); letter-spacing: 2px; }
+        .divider { display: flex; align-items: center; gap: 16px; margin: 6px 0 18px; opacity: 0.4; }
+        .divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-mid), transparent); }
+        .divider-icon { color: var(--gold-mid); font-size: 0.7rem; }
+        .editor-area::-webkit-scrollbar { width: 8px; }
+        .editor-area::-webkit-scrollbar-track { background: var(--black); }
+        .editor-area::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+        .editor-area::-webkit-scrollbar-thumb:hover { background: var(--gold-mid); }
+
+        .login-gate { display: none; position: fixed; inset: 0; background: var(--black); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+        .login-gate.active { display: flex; }
+        .login-gate h2 { font-family: 'Cinzel', serif; color: var(--gold-light); font-size: 2rem; letter-spacing: 4px; margin-bottom: 16px; }
+        .login-gate p { color: var(--text-secondary); font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 32px; max-width: 500px; line-height: 1.7; }
+        .login-gate .gate-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+        .login-gate .gate-actions .btn { padding: 12px 32px; font-size: 0.8rem; }
+
+        @media (max-width: 1024px) {
+            :root { --sw: 220px; --cw: 240px; }
+            .header { padding: 0 24px; height: 60px; }
+            .header::after { left: 24px; right: 24px; }
+            .brand-text h1 { font-size: 1rem; letter-spacing: 2px; }
+            .brand-icon { width: 34px; height: 34px; font-size: 1rem; }
+            .editor-area { padding: 20px 24px; }
+            .editor-card { padding: 28px 32px; }
+            .story-title-input { font-size: 1.6rem !important; }
+            .chapter-title-input { font-size: 1.2rem !important; }
+            .form-group textarea { min-height: calc(100vh - 340px); font-size: 1.05rem; }
+        }
+        @media (max-width: 768px) {
+            :root { --sw: 200px; --cw: 210px; }
+            .btn { padding: 6px 14px; font-size: 0.6rem; }
+            .editor-area { padding: 16px 20px; }
+            .editor-card { padding: 24px 24px; }
+            .story-title-input { font-size: 1.4rem !important; }
+            .chapter-title-input { font-size: 1.1rem !important; }
+            .form-group textarea { min-height: calc(100vh - 320px); font-size: 1rem; }
+            .user-badge span { display: none; }
+        }
+        @media (max-width: 640px) {
+            .header { padding: 0 16px; height: 56px; }
+            .header::after { left: 16px; right: 16px; }
+            .brand-text span { display: none; }
+            .brand-text h1 { font-size: 0.95rem; }
+            .mobile-menu-btn { display: flex; }
+            .header-actions .btn { display: none; }
+            .header-actions .btn-primary { display: block; padding: 6px 12px; font-size: 0.6rem; }
+            .sidebar { position: fixed; top: 56px; bottom: 0; z-index: 200; width: 280px !important; transform: translateX(-100%); box-shadow: 4px 0 30px rgba(0,0,0,0.8); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .sidebar.collapsed { width: 280px !important; transform: translateX(-100%); }
+            .sidebar.collapsed .sidebar-inner { opacity: 1; pointer-events: auto; }
+            .sidebar-toggle { display: none; }
+            .collapsed-indicator { display: none !important; }
+            .stories-sidebar { left: 0; }
+            .chapters-sidebar { left: 0; }
+            .editor-area { padding: 12px 16px; }
+            .editor-card { padding: 20px 18px; border-radius: 8px; }
+            .story-title-input { font-size: 1.3rem !important; padding: 10px 14px 12px !important; }
+            .chapter-title-input { font-size: 1rem !important; }
+            .form-group textarea { min-height: calc(100vh - 280px); font-size: 1rem; line-height: 1.8; }
+            .form-group { margin-bottom: 18px; }
+            .overlay { display: none; position: fixed; top: 56px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 150; }
+            .overlay.active { display: block; }
+        }
+        @media (min-width: 1400px) {
+            .editor-card { max-width: 1100px; padding: 48px 64px; }
+            .form-group textarea { min-height: calc(100vh - 400px); font-size: 1.2rem; line-height: 2.1; }
+            .story-title-input { font-size: 2.4rem !important; }
+            .chapter-title-input { font-size: 1.6rem !important; }
+        }
+        @media (min-width: 1800px) {
+            .editor-card { max-width: 1300px; padding: 56px 80px; }
+            .form-group textarea { font-size: 1.3rem; line-height: 2.2; }
+        }
+    </style>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <div class="header">
+        <div class="brand">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" title="Menu">☰</button>
+            <div class="brand-icon">✦</div>
+            <div class="brand-text">
+                <h1>PLOT WEAVER</h1>
+                <span>Everyone has a story</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'explore' %}" class="btn">Explore</a>
+            <button class="btn btn-primary" id="saveExploreBtn">Save & Explore</button>
+            <div class="user-badge" id="userBadge">
+                <div class="avatar" id="userAvatar">{{ user.first_name|first|default:"U" }}</div>
+                <span id="userName">{{ user.first_name|default:"User" }}</span>
+            </div>
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn" title="Log Out">↪</button>
+            </form>
+        </div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <div class="main-container">
+        <div class="sidebar stories-sidebar" id="storiesSidebar">
+            <div class="sidebar-inner">
+                <div class="stories-header"><h2>Stories</h2></div>
+                <div class="stories-list" id="storiesList"></div>
+                <button class="add-story-btn" id="addStoryBtn">+ New Story</button>
+            </div>
+            <button class="sidebar-toggle" id="storiesToggle" title="Toggle Stories Panel"><span class="toggle-icon">◀</span></button>
+            <div class="collapsed-indicator"><span class="ind-icon">✦</span><span class="ind-count" id="storiesIndCount">1</span></div>
+        </div>
+        <div class="sidebar chapters-sidebar" id="chaptersSidebar">
+            <div class="sidebar-inner">
+                <div class="chapters-header"><h2>Chapters</h2></div>
+                <div class="chapter-list" id="chapterList"></div>
+                <button class="add-chapter-btn" id="addChapterBtn">+ Add Chapter</button>
+            </div>
+            <button class="sidebar-toggle" id="chaptersToggle" title="Toggle Chapters Panel"><span class="toggle-icon">◀</span></button>
+            <div class="collapsed-indicator"><span class="ind-icon">✦</span><span class="ind-count" id="chaptersIndCount">1</span></div>
+        </div>
+        <div class="editor-area">
+            <div class="editor-card">
+                <div class="form-group">
+                    <input type="text" id="storyTitle" class="story-title-input" placeholder="Enter Your Story Title...">
+                </div>
+                <div class="divider"><div class="divider-line"></div><span class="divider-icon">✦</span><div class="divider-line"></div></div>
+                <div class="form-group">
+                    <label for="chapterTitle">Chapter Title</label>
+                    <input type="text" id="chapterTitle" class="chapter-title-input" placeholder="Name this chapter...">
+                </div>
+                <div class="form-group">
+                    <label for="storyContent">Your Story</label>
+                    <textarea id="storyContent" placeholder="Once upon a time..."></textarea>
+                </div>
+                <div class="status-bar">
+                    <div class="status-left"><span id="chapterCount">1 Chapter</span><span style="margin: 0 8px;">|</span><span class="word-count" id="wordCount">0 words</span></div>
+                    <div class="status-right" id="statusBar">Ready to write</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── STORY EDITOR STATE ───
+        let stories = [];
+        let currentStoryId = null;
+        let nextStoryId = 1;
+        let currentChapterId = null;
+        let mobileMenuOpen = false;
+
+        const storiesSidebar = document.getElementById('storiesSidebar');
+        const chaptersSidebar = document.getElementById('chaptersSidebar');
+        const storiesToggle = document.getElementById('storiesToggle');
+        const chaptersToggle = document.getElementById('chaptersToggle');
+        const storiesIndCount = document.getElementById('storiesIndCount');
+        const chaptersIndCount = document.getElementById('chaptersIndCount');
+        const storiesListEl = document.getElementById('storiesList');
+        const storyTitleInput = document.getElementById('storyTitle');
+        const chapterTitleInput = document.getElementById('chapterTitle');
+        const storyContentInput = document.getElementById('storyContent');
+        const chapterListEl = document.getElementById('chapterList');
+        const statusBar = document.getElementById('statusBar');
+        const wordCountEl = document.getElementById('wordCount');
+        const chapterCountEl = document.getElementById('chapterCount');
+        const addStoryBtn = document.getElementById('addStoryBtn');
+        const addChapterBtn = document.getElementById('addChapterBtn');
+        const saveExploreBtn = document.getElementById('saveExploreBtn');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const overlay = document.getElementById('overlay');
+
+        function init() {
+            loadStories();
+            updateCollapsedIndicators();
+            checkAutoCollapse();
+
+            storyTitleInput.addEventListener('input', updateStoryTitle);
+            chapterTitleInput.addEventListener('input', updateCurrentChapter);
+            storyContentInput.addEventListener('input', () => { updateCurrentChapter(); updateWordCount(); });
+            addStoryBtn.addEventListener('click', addStory);
+            addChapterBtn.addEventListener('click', addChapter);
+            saveExploreBtn.addEventListener('click', saveAndExplore);
+            storiesToggle.addEventListener('click', () => toggleSidebar('stories'));
+            chaptersToggle.addEventListener('click', () => toggleSidebar('chapters'));
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            overlay.addEventListener('click', closeMobileMenu);
+            window.addEventListener('resize', () => { checkAutoCollapse(); if (window.innerWidth > 640) closeMobileMenu(); });
+        }
+
+        function loadStories() {
+            fetch('/api/stories/')
+                .then(response => response.json())
+                .then(data => {
+                    stories = data.stories || [];
+                    if (stories.length === 0) {
+                        stories = [{ id: 0, title: "", chapters: [{ id: 0, title: "", content: "" }] }];
+                        currentStoryId = 0;
+                        currentChapterId = 0;
+                    } else {
+                        currentStoryId = stories[0].id;
+                        currentChapterId = stories[0].chapters[0]?.id || 0;
+                    }
+                    renderStoriesList();
+                    renderChapterList();
+                    loadChapter(currentChapterId);
+                    updateCollapsedIndicators();
+                })
+                .catch(error => console.error('Error loading stories:', error));
+        }
+
+        function checkAutoCollapse() {
+            const w = window.innerWidth;
+            if (w <= 900 && w > 640) { if (!storiesSidebar.classList.contains('collapsed')) toggleSidebar('stories'); }
+            if (w <= 1100 && w > 640) { if (!chaptersSidebar.classList.contains('collapsed')) toggleSidebar('chapters'); }
+        }
+
+        function toggleSidebar(which) {
+            if (which === 'stories') storiesSidebar.classList.toggle('collapsed');
+            else chaptersSidebar.classList.toggle('collapsed');
+        }
+
+        function toggleMobileMenu() {
+            if (mobileMenuOpen) closeMobileMenu();
+            else openMobileMenu('stories');
+        }
+
+        function openMobileMenu(target) {
+            mobileMenuOpen = true;
+            overlay.classList.add('active');
+            if (target === 'stories') { storiesSidebar.classList.add('mobile-open'); chaptersSidebar.classList.remove('mobile-open'); }
+            else { chaptersSidebar.classList.add('mobile-open'); storiesSidebar.classList.remove('mobile-open'); }
+        }
+
+        function closeMobileMenu() {
+            mobileMenuOpen = false;
+            overlay.classList.remove('active');
+            storiesSidebar.classList.remove('mobile-open');
+            chaptersSidebar.classList.remove('mobile-open');
+        }
+
+        function updateCollapsedIndicators() {
+            storiesIndCount.textContent = stories.length;
+            const story = getCurrentStory();
+            chaptersIndCount.textContent = story ? story.chapters.length : 0;
+        }
+
+        function getCurrentStory() { return stories.find(s => s.id === currentStoryId); }
+
+        function updateWordCount() {
+            const text = storyContentInput.value.trim();
+            const count = text ? text.split(/\s+/).length : 0;
+            wordCountEl.textContent = count + (count === 1 ? ' word' : ' words');
+        }
+
+        function updateChapterCount() {
+            const story = getCurrentStory();
+            const count = story ? story.chapters.length : 0;
+            chapterCountEl.textContent = count + (count === 1 ? ' Chapter' : ' Chapters');
+        }
+
+        function showStatus(msg) {
+            statusBar.textContent = msg;
+            statusBar.style.color = 'var(--gold-mid)';
+            setTimeout(() => { statusBar.textContent = "Ready to write"; statusBar.style.color = ''; }, 2500);
+        }
+
+        function saveToLocalStorage() {
+            saveCurrentChapter();
+            const story = getCurrentStory();
+            if (!story) return;
+            
+            const storyData = {
+                id: story.id === 0 ? null : story.id,
+                title: story.title,
+                chapters: story.chapters.map((c, i) => ({
+                    id: c.id === 0 ? null : c.id,
+                    title: c.title,
+                    content: c.content,
+                    order: i
+                }))
+            };
+
+            fetch('/api/stories/save/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(storyData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showStatus("Story saved to library");
+                    loadStories();
+                }
+            })
+            .catch(error => console.error('Error saving story:', error));
+        }
+
+        function saveAndExplore() {
+            saveToLocalStorage();
+            setTimeout(() => {
+                window.location.href = '{% url "explore" %}';
+            }, 500);
+        }
+
+        // ─── STORIES ───
+        function renderStoriesList() {
+            storiesListEl.innerHTML = '';
+            stories.forEach(story => {
+                const div = document.createElement('div');
+                div.className = `story-item ${story.id === currentStoryId ? 'active' : ''}`;
+                div.onclick = () => { switchStory(story.id); if (window.innerWidth <= 640) openMobileMenu('chapters'); };
+                const info = document.createElement('div'); info.className = 'story-info';
+                const title = document.createElement('span'); title.className = 'story-title-text'; title.textContent = story.title || 'Untitled Story';
+                const meta = document.createElement('span'); meta.className = 'story-meta'; meta.textContent = `${story.chapters.length} chapter${story.chapters.length !== 1 ? 's' : ''}`;
+                info.appendChild(title); info.appendChild(meta);
+                const deleteBtn = document.createElement('button'); deleteBtn.className = 'delete-story-btn'; deleteBtn.innerHTML = '×'; deleteBtn.title = "Delete Story";
+                deleteBtn.onclick = (e) => { e.stopPropagation(); deleteStory(story.id); };
+                div.appendChild(info); div.appendChild(deleteBtn); storiesListEl.appendChild(div);
+            });
+            updateCollapsedIndicators();
+        }
+
+        function addStory() {
+            const newStory = {
+                id: 0,
+                title: "",
+                chapters: [{ id: 0, title: "", content: "" }]
+            };
+            stories.push(newStory);
+            renderStoriesList();
+            switchStory(newStory.id);
+            showStatus("New story created");
+        }
+
+        function deleteStory(id) {
+            if (stories.length <= 1) { showStatus("Cannot delete last story"); return; }
+            if (confirm("Delete this story and all its chapters permanently?")) {
+                fetch(`/api/stories/${id}/delete/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadStories();
+                        showStatus("Story deleted");
+                    }
+                })
+                .catch(error => console.error('Error deleting story:', error));
+            }
+        }
+
+        function switchStory(id) {
+            saveCurrentChapter();
+            currentStoryId = id;
+            const story = getCurrentStory();
+            currentChapterId = story.chapters[0]?.id || 0;
+            renderStoriesList(); renderChapterList(); loadChapter(currentChapterId);
+        }
+
+        function updateStoryTitle() {
+            const story = getCurrentStory();
+            if (story) { story.title = storyTitleInput.value; renderStoriesList(); }
+        }
+
+        // ─── CHAPTERS ───
+        function renderChapterList() {
+            const story = getCurrentStory();
+            if (!story) return;
+            chapterListEl.innerHTML = '';
+            story.chapters.forEach(chapter => {
+                const div = document.createElement('div');
+                div.className = `chapter-item ${chapter.id === currentChapterId ? 'active' : ''}`;
+                div.onclick = () => { switchChapter(chapter.id); if (window.innerWidth <= 640) closeMobileMenu(); };
+                const info = document.createElement('div'); info.className = 'chapter-info';
+                const num = document.createElement('span'); num.className = 'chapter-number'; num.textContent = `Chapter ${chapter.id}`;
+                const title = document.createElement('span'); title.className = 'chapter-title'; title.textContent = chapter.title || 'Untitled';
+                info.appendChild(num); info.appendChild(title);
+                const deleteBtn = document.createElement('button'); deleteBtn.className = 'delete-btn'; deleteBtn.innerHTML = '×'; deleteBtn.title = "Delete Chapter";
+                deleteBtn.onclick = (e) => { e.stopPropagation(); deleteChapter(chapter.id); };
+                div.appendChild(info); div.appendChild(deleteBtn); chapterListEl.appendChild(div);
+            });
+            updateChapterCount(); updateCollapsedIndicators();
+        }
+
+        function addChapter() {
+            const story = getCurrentStory();
+            if (!story) return;
+            const maxId = story.chapters.reduce((max, c) => Math.max(max, c.id), 0);
+            const newId = maxId + 1;
+            const newChapter = { id: newId, title: `Chapter ${newId}`, content: "" };
+            story.chapters.push(newChapter);
+            renderChapterList(); switchChapter(newId); showStatus("Chapter created");
+        }
+
+        function deleteChapter(id) {
+            const story = getCurrentStory();
+            if (!story) return;
+            if (story.chapters.length <= 1) { showStatus("Cannot delete last chapter"); return; }
+            if (confirm("Delete this chapter permanently?")) {
+                fetch(`/api/chapters/${id}/delete/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadStories();
+                        showStatus("Chapter deleted");
+                    }
+                })
+                .catch(error => console.error('Error deleting chapter:', error));
+            }
+        }
+
+        function switchChapter(id) {
+            saveCurrentChapter();
+            currentChapterId = id;
+            loadChapter(id); renderChapterList();
+        }
+
+        function saveCurrentChapter() {
+            const story = getCurrentStory();
+            if (!story) return;
+            const chapter = story.chapters.find(c => c.id === currentChapterId);
+            if (chapter) { chapter.title = chapterTitleInput.value; chapter.content = storyContentInput.value; }
+        }
+
+        function loadChapter(id) {
+            const story = getCurrentStory();
+            if (!story) return;
+            const chapter = story.chapters.find(c => c.id === id);
+            if (chapter) {
+                storyTitleInput.value = story.title;
+                chapterTitleInput.value = chapter.title;
+                storyContentInput.value = chapter.content;
+                updateWordCount();
+            }
+        }
+
+        function updateCurrentChapter() {
+            const story = getCurrentStory();
+            if (!story) return;
+            const chapter = story.chapters.find(c => c.id === currentChapterId);
+            if (chapter) { chapter.title = chapterTitleInput.value; chapter.content = storyContentInput.value; }
+            renderChapterList(); renderStoriesList();
+        }
+
+        // ─── KEYBOARD SHORTCUTS ───
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveToLocalStorage();
+            }
+        });
+
+        init();
+    </script>
+    {% else %}
+    <div class="login-gate active">
+        <div class="brand-icon" style="width:64px;height:64px;font-size:2rem;margin-bottom:24px;">✦</div>
+        <h2>PLOT WEAVER</h2>
+        <p>Your stories are personal. Please sign in to access your writing workspace and continue crafting your narratives.</p>
+        <div class="gate-actions">
+            <a href="{% url 'login' %}" class="btn btn-primary">Log In</a>
+            <a href="{% url 'signup' %}" class="btn">Sign Up</a>
+            <a href="{% url 'index' %}" class="btn">Back to Home</a>
+        </div>
+    </div>
+    {% endif %}
+</body>
+</html>

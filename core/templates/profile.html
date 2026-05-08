@@ -1,0 +1,558 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Plot Weaver</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@300;400;500&family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-light: #F4E4BC;
+            --gold-mid: #D4AF37;
+            --gold-deep: #B8860B;
+            --gold-dark: #8B6914;
+            --black: #0D0D0D;
+            --black-soft: #141414;
+            --black-raised: #1A1A1A;
+            --charcoal: #2A2A2A;
+            --text-primary: #E8E0D0;
+            --text-secondary: #A89F8F;
+            --text-muted: #6B6255;
+            --border-subtle: rgba(212, 175, 55, 0.15);
+            --border-glow: rgba(212, 175, 55, 0.3);
+            --shadow-gold: 0 4px 30px rgba(212, 175, 55, 0.15);
+            --shadow-deep: 0 8px 40px rgba(0, 0, 0, 0.6);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Lato', sans-serif;
+            background: var(--black);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            height: 64px;
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black) 100%);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+        }
+        .navbar::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 32px;
+            right: 32px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 20%, var(--gold-mid) 80%, transparent 100%);
+            opacity: 0.4;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .nav-brand-icon {
+            width: 38px; height: 38px;
+            border: 2px solid var(--gold-mid);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--gold-mid);
+            box-shadow: 0 0 16px rgba(212, 175, 55, 0.2);
+        }
+        .nav-brand-text h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .nav-brand-text span {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 1px;
+        }
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+        }
+        .nav-menu li a, .nav-menu li button {
+            padding: 8px 20px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .nav-menu li a:hover, .nav-menu li button:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            box-shadow: var(--shadow-gold);
+        }
+        .nav-menu li .btn-primary {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-deep) 50%, var(--gold-dark) 100%);
+            border-color: var(--gold-deep);
+            color: var(--black);
+            font-weight: 700;
+        }
+        .nav-menu li .btn-primary:hover {
+            background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-mid) 50%, var(--gold-deep) 100%);
+            color: var(--black);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gold-mid);
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+        }
+        .user-badge .avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--black);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-subtle);
+            color: var(--gold-mid);
+            font-size: 1.2rem;
+            width: 38px; height: 38px;
+            border-radius: 6px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-gate {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--black);
+            z-index: 5000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+        }
+        .login-gate.active { display: flex; }
+        .login-gate .gate-icon {
+            width: 64px; height: 64px;
+            border: 2px solid var(--gold-mid);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--gold-mid);
+            margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        }
+        .login-gate h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold-light);
+            font-size: 2rem;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+        .login-gate p {
+            color: var(--text-secondary);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: 32px;
+            max-width: 500px;
+            line-height: 1.7;
+        }
+        .login-gate .gate-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .login-gate .gate-actions a {
+            padding: 12px 32px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .login-gate .gate-actions a:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            box-shadow: var(--shadow-gold);
+        }
+        .login-gate .gate-actions a.primary {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-deep) 50%, var(--gold-dark) 100%);
+            border-color: var(--gold-deep);
+            color: var(--black);
+            font-weight: 700;
+        }
+
+        .profile-container {
+            padding: 100px 32px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .profile-avatar {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--black);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
+            border: 3px solid var(--gold-mid);
+        }
+        .profile-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--gold-light);
+            margin-bottom: 8px;
+        }
+        .profile-header .email {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .profile-card {
+            background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 36px;
+            margin-bottom: 32px;
+            position: relative;
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20px; right: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold-mid) 50%, transparent 100%);
+            opacity: 0.5;
+        }
+        .profile-card h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            color: var(--gold-mid);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-card h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--gold-mid) 0%, transparent 100%);
+            opacity: 0.3;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .detail-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+        .stat-box {
+            background: var(--black);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-box:hover {
+            border-color: var(--gold-mid);
+            box-shadow: var(--shadow-gold);
+        }
+        .stat-box .number {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--gold-mid);
+            font-weight: 700;
+        }
+        .stat-box .label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        .action-buttons a, .action-buttons button {
+            padding: 12px 28px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .action-buttons a:hover, .action-buttons button:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-light);
+            box-shadow: var(--shadow-gold);
+        }
+        .action-buttons .primary {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-deep) 50%, var(--gold-dark) 100%);
+            border-color: var(--gold-deep);
+            color: var(--black);
+            font-weight: 700;
+        }
+        .action-buttons .primary:hover {
+            background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-mid) 50%, var(--gold-deep) 100%);
+            color: var(--black);
+        }
+        .action-buttons .danger {
+            border-color: rgba(180, 50, 50, 0.4);
+            color: #c95555;
+        }
+        .action-buttons .danger:hover {
+            background: rgba(180, 50, 50, 0.1);
+            border-color: #c95555;
+            color: #e07070;
+        }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0 16px; }
+            .nav-brand-text span { display: none; }
+            .nav-menu { display: none; }
+            .mobile-menu-btn { display: flex; }
+            .profile-container { padding: 90px 16px 40px; }
+            .profile-avatar { width: 80px; height: 80px; font-size: 2rem; }
+            .profile-header h1 { font-size: 1.6rem; }
+            .profile-card { padding: 24px; }
+            .detail-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .detail-value { text-align: left; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'index' %}" class="nav-brand">
+            <div class="nav-brand-icon">✦</div>
+            <div class="nav-brand-text">
+                <h1>PLOT WEAVER</h1>
+                <span>Everyone has a story</span>
+            </div>
+        </a>
+        <div class="header-actions" style="display:flex;gap:10px;align-items:center;">
+            <a href="{% url 'write' %}" class="btn" style="padding:8px 20px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-secondary);font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;text-decoration:none;border-radius:4px;transition:all 0.3s ease;">Write</a>
+            <a href="{% url 'explore' %}" class="btn" style="padding:8px 20px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-secondary);font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;text-decoration:none;border-radius:4px;transition:all 0.3s ease;">Explore</a>
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn" style="padding:8px 20px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-secondary);font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all 0.3s ease;" title="Log Out">↪</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="profile-container" id="profileContent">
+        {% if user.is_authenticated %}
+        <div class="profile-header">
+            {% if user.profile.profile_image %}
+                <img src="{{ user.profile.profile_image.url }}" alt="avatar" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-mid);box-shadow:0 0 30px rgba(212,175,55,0.15);margin:0 auto 20px;display:block;"/>
+            {% else %}
+                <div class="profile-avatar" id="profileAvatar">{{ user.first_name|default:user.username|first|upper }}</div>
+            {% endif %}
+            <h1 id="profileName">{{ user.first_name }} {{ user.last_name }}</h1>
+            <div class="email" id="profileEmail">{{ user.email }}</div>
+        </div>
+        {% else %}
+        <div class="profile-header">
+            <div class="profile-avatar" id="profileAvatar"></div>
+            <h1 id="profileName"></h1>
+            <div class="email" id="profileEmail"></div>
+        </div>
+        {% endif %}
+
+        <div class="profile-card">
+            <h2>Account Details</h2>
+            <div class="detail-row">
+                <span class="detail-label">First Name</span>
+                <span class="detail-value" id="detailFirstName"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Second Name</span>
+                <span class="detail-value" id="detailSecondName"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email Address</span>
+                <span class="detail-value" id="detailEmail"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Contact</span>
+                <span class="detail-value" id="detailContact">
+            
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Member Since</span>
+                <span class="detail-value" id="detailJoined">
+            
+                </span>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <h2>My Stories</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-box">
+                    <div class="number" id="statStories">0</div>
+                    <div class="label">Stories</div>
+                </div>
+                <div class="stat-box">
+                    <div class="number" id="statChapters">0</div>
+                    <div class="label">Chapters</div>
+                </div>
+                <div class="stat-box">
+                    <div class="number" id="statWords">0</div>
+                    <div class="label">Words</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'write' %}" class="primary">Start Writing</a>
+            <a href="{% url 'explore' %}">Explore</a>
+            <button class="danger" id="deleteAccountBtn">Delete Account</button>
+        </div>
+        <div style="text-align:center;padding:60px 20px;">
+            <div style="font-size:3rem;color:var(--gold-mid);margin-bottom:20px;">✦</div>
+            <h2 style="font-family:'Cinzel',serif;color:var(--gold-light);letter-spacing:3px;margin-bottom:12px;">Please Log In</h2>
+            <p style="color:var(--text-secondary);margin-bottom:24px;">You need to be logged in to view your profile.</p>
+            <div style="display:flex;gap:16px;justify-content:center;">
+                <a href="{% url 'login' %}" class="btn btn-primary" style="padding:12px 32px;">Log In</a>
+                <a href="{% url 'signup' %}" class="btn" style="padding:12px 32px;">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load story stats
+        function loadStats() {
+            fetch('/api/stats/')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('statStories').textContent = data.stories || 0;
+                    document.getElementById('statChapters').textContent = data.chapters || 0;
+                    document.getElementById('statWords').textContent = (data.words || 0).toLocaleString();
+                })
+                .catch(error => console.error('Error loading stats:', error));
+        }
+        loadStats();
+
+        // Delete account
+        document.getElementById('deleteAccountBtn')?.addEventListener('click', function() {
+            if (confirm('WARNING: This will permanently delete your account and all your stories. This cannot be undone. Continue?')) {
+                fetch('{% url "delete_account" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Your account has been deleted.');
+                        window.location.href = '{% url "index" %}';
+                    }
+                })
+                .catch(error => console.error('Error deleting account:', error));
+            }
+        });
+    </script>
+</body>
+</html>
