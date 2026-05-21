@@ -13,6 +13,7 @@ urlpatterns = [
 
     path('api/stories/', views.get_stories, name='get_stories'),
     path('api/stories/save/', views.save_story, name='save_story'),
+    path('api/stories/<int:story_id>/rename/', views.rename_story, name='rename_story'),
     path('api/stories/<int:story_id>/delete/', views.delete_story, name='delete_story'),
     path('api/chapters/<int:chapter_id>/delete/', views.delete_chapter, name='delete_chapter'),
     path('api/account/delete/', views.delete_account, name='delete_account'),

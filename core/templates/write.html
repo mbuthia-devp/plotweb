@@ -88,8 +88,23 @@
         .story-item .story-title-text { font-family: 'Playfair Display', serif; font-size: 0.85rem; color: var(--text-primary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .story-item.active .story-title-text { color: var(--gold-light); }
         .story-item .story-meta { font-family: 'Cinzel', serif; font-size: 0.55rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
-        .story-item .delete-story-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease; flex-shrink: 0; margin-left: 4px; }
+        .story-item .story-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+        .story-item .rename-story-btn, .story-item .delete-story-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease; }
+        .story-item .rename-story-btn:hover { color: var(--gold-mid); background: rgba(212, 175, 55, 0.1); }
         .story-item .delete-story-btn:hover { color: #C0392B; background: rgba(192, 57, 43, 0.1); }
+
+        /* Rename modal */
+        .rename-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 5001; align-items: center; justify-content: center; padding: 20px; }
+        .rename-modal-overlay.active { display: flex; }
+        .rename-modal { background: linear-gradient(180deg, var(--black-soft) 0%, var(--black-raised) 100%); border: 1px solid var(--border-glow); border-radius: 10px; padding: 32px 28px; width: 100%; max-width: 420px; position: relative; }
+        .rename-modal h3 { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--gold-mid); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+        .rename-modal input { width: 100%; padding: 12px 16px; background: var(--black); border: 1px solid var(--border-subtle); border-radius: 6px; color: var(--text-primary); font-family: 'Playfair Display', serif; font-size: 1rem; outline: none; transition: border-color 0.3s ease; margin-bottom: 16px; }
+        .rename-modal input:focus { border-color: var(--gold-mid); }
+        .rename-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .rename-cancel { padding: 8px 20px; border: 1px solid var(--border-subtle); background: transparent; color: var(--text-muted); font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 4px; transition: all 0.3s ease; }
+        .rename-cancel:hover { border-color: var(--gold-mid); color: var(--gold-light); }
+        .rename-confirm { padding: 8px 20px; background: linear-gradient(135deg, var(--gold-dark), var(--gold-deep)); border: 1px solid var(--gold-deep); color: var(--black); font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 4px; font-weight: 700; transition: all 0.3s ease; }
+        .rename-confirm:hover { background: linear-gradient(135deg, var(--gold-deep), var(--gold-mid)); }
         .add-story-btn { width: 100%; padding: 10px; background: transparent; color: var(--gold-mid); border: 1px dashed var(--gold-dark); border-radius: 6px; cursor: pointer; font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; transition: all 0.3s ease; }
         .add-story-btn:hover { background: rgba(212, 175, 55, 0.05); border-color: var(--gold-mid); color: var(--gold-light); box-shadow: var(--shadow-gold); }
 
@@ -239,6 +254,19 @@
         </div>
     </div>
     <div class="overlay" id="overlay"></div>
+
+    <!-- Rename Story Modal -->
+    <div class="rename-modal-overlay" id="renameModalOverlay">
+        <div class="rename-modal">
+            <h3>Rename Story</h3>
+            <input type="text" id="renameInput" placeholder="Story title...">
+            <div class="rename-modal-actions">
+                <button class="rename-cancel" id="renameCancelBtn">Cancel</button>
+                <button class="rename-confirm" id="renameConfirmBtn">Rename</button>
+            </div>
+        </div>
+    </div>
+
     <div class="main-container">
         <div class="sidebar stories-sidebar" id="storiesSidebar">
             <div class="sidebar-inner">
@@ -445,6 +473,8 @@
         }
 
         // ─── STORIES ───
+        let renamingStoryId = null;
+
         function renderStoriesList() {
             storiesListEl.innerHTML = '';
             stories.forEach(story => {
@@ -455,12 +485,78 @@
                 const title = document.createElement('span'); title.className = 'story-title-text'; title.textContent = story.title || 'Untitled Story';
                 const meta = document.createElement('span'); meta.className = 'story-meta'; meta.textContent = `${story.chapters.length} chapter${story.chapters.length !== 1 ? 's' : ''}`;
                 info.appendChild(title); info.appendChild(meta);
+
+                const actions = document.createElement('div'); actions.className = 'story-actions';
+
+                const renameBtn = document.createElement('button'); renameBtn.className = 'rename-story-btn'; renameBtn.innerHTML = '✏'; renameBtn.title = "Rename Story";
+                renameBtn.onclick = (e) => { e.stopPropagation(); openRenameModal(story.id, story.title); };
+
                 const deleteBtn = document.createElement('button'); deleteBtn.className = 'delete-story-btn'; deleteBtn.innerHTML = '×'; deleteBtn.title = "Delete Story";
                 deleteBtn.onclick = (e) => { e.stopPropagation(); deleteStory(story.id); };
-                div.appendChild(info); div.appendChild(deleteBtn); storiesListEl.appendChild(div);
+
+                actions.appendChild(renameBtn); actions.appendChild(deleteBtn);
+                div.appendChild(info); div.appendChild(actions); storiesListEl.appendChild(div);
             });
             updateCollapsedIndicators();
         }
+
+        function openRenameModal(storyId, currentTitle) {
+            renamingStoryId = storyId;
+            const input = document.getElementById('renameInput');
+            input.value = currentTitle || '';
+            document.getElementById('renameModalOverlay').classList.add('active');
+            setTimeout(() => { input.focus(); input.select(); }, 50);
+        }
+
+        function closeRenameModal() {
+            renamingStoryId = null;
+            document.getElementById('renameModalOverlay').classList.remove('active');
+        }
+
+        function confirmRename() {
+            const newTitle = document.getElementById('renameInput').value.trim();
+            if (renamingStoryId === null) return;
+
+            const story = stories.find(s => s.id === renamingStoryId);
+            if (!story) { closeRenameModal(); return; }
+
+            if (renamingStoryId === 0 || !renamingStoryId) {
+                // Unsaved story - just update locally
+                story.title = newTitle;
+                if (renamingStoryId === currentStoryId) storyTitleInput.value = newTitle;
+                renderStoriesList();
+                closeRenameModal();
+                showStatus('Story renamed');
+                return;
+            }
+
+            fetch(`/api/stories/${renamingStoryId}/rename/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ title: newTitle })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    story.title = data.title;
+                    if (renamingStoryId === currentStoryId) storyTitleInput.value = data.title;
+                    renderStoriesList();
+                    showStatus('Story renamed');
+                }
+                closeRenameModal();
+            })
+            .catch(() => closeRenameModal());
+        }
+
+        document.getElementById('renameCancelBtn').addEventListener('click', closeRenameModal);
+        document.getElementById('renameConfirmBtn').addEventListener('click', confirmRename);
+        document.getElementById('renameInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') confirmRename();
+            if (e.key === 'Escape') closeRenameModal();
+        });
+        document.getElementById('renameModalOverlay').addEventListener('click', e => {
+            if (e.target === document.getElementById('renameModalOverlay')) closeRenameModal();
+        });
 
         function addStory() {
             const newStory = {

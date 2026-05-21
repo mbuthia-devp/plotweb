@@ -205,6 +205,17 @@ def save_story(request):
 
 
 @login_required
+@require_http_methods(['POST'])
+def rename_story(request, story_id):
+    data = json.loads(request.body)
+    title = data.get('title', '').strip()
+    story = get_object_or_404(Story, id=story_id, user=request.user)
+    story.title = title
+    story.save()
+    return JsonResponse({'success': True, 'title': story.title})
+
+
+@login_required
 @require_http_methods(['DELETE'])
 def delete_story(request, story_id):
     story = get_object_or_404(Story, id=story_id, user=request.user)

@@ -32,9 +32,23 @@ class Chapter(models.Model):
     content = models.TextField(blank=True)
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now)
-    
+
     class Meta:
         ordering = ['order', 'created_at']
-    
+
     def __str__(self):
         return f"Chapter {self.order}: {self.title or 'Untitled'}"
+
+
+class LoginEvent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='login_events')
+    timestamp = models.DateTimeField(default=timezone.now)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'Login Event'
+        verbose_name_plural = 'Login Events'
+
+    def __str__(self):
+        return f"{self.user.username} signed in at {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
