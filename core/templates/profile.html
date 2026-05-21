@@ -439,7 +439,6 @@
     </nav>
 
     <div class="profile-container" id="profileContent">
-        {% if user.is_authenticated %}
         <div class="profile-header">
             {% if user.profile.profile_image %}
                 <img src="{{ user.profile.profile_image.url }}" alt="avatar" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-mid);box-shadow:0 0 30px rgba(212,175,55,0.15);margin:0 auto 20px;display:block;"/>
@@ -449,39 +448,28 @@
             <h1 id="profileName">{{ user.first_name }} {{ user.last_name }}</h1>
             <div class="email" id="profileEmail">{{ user.email }}</div>
         </div>
-        {% else %}
-        <div class="profile-header">
-            <div class="profile-avatar" id="profileAvatar"></div>
-            <h1 id="profileName"></h1>
-            <div class="email" id="profileEmail"></div>
-        </div>
-        {% endif %}
 
         <div class="profile-card">
             <h2>Account Details</h2>
             <div class="detail-row">
                 <span class="detail-label">First Name</span>
-                <span class="detail-value" id="detailFirstName"></span>
+                <span class="detail-value" id="detailFirstName">{{ user.first_name }}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Second Name</span>
-                <span class="detail-value" id="detailSecondName"></span>
+                <span class="detail-value" id="detailSecondName">{{ user.last_name }}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Email Address</span>
-                <span class="detail-value" id="detailEmail"></span>
+                <span class="detail-value" id="detailEmail">{{ user.email }}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Contact</span>
-                <span class="detail-value" id="detailContact">
-            
-                </span>
+                <span class="detail-value" id="detailContact">{{ user.profile.contact }}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Member Since</span>
-                <span class="detail-value" id="detailJoined">
-            
-                </span>
+                <span class="detail-value" id="detailJoined">{{ user.date_joined|date:"F j, Y" }}</span>
             </div>
         </div>
 
@@ -507,15 +495,6 @@
             <a href="{% url 'write' %}" class="primary">Start Writing</a>
             <a href="{% url 'explore' %}">Explore</a>
             <button class="danger" id="deleteAccountBtn">Delete Account</button>
-        </div>
-        <div style="text-align:center;padding:60px 20px;">
-            <div style="font-size:3rem;color:var(--gold-mid);margin-bottom:20px;">✦</div>
-            <h2 style="font-family:'Cinzel',serif;color:var(--gold-light);letter-spacing:3px;margin-bottom:12px;">Please Log In</h2>
-            <p style="color:var(--text-secondary);margin-bottom:24px;">You need to be logged in to view your profile.</p>
-            <div style="display:flex;gap:16px;justify-content:center;">
-                <a href="{% url 'login' %}" class="btn btn-primary" style="padding:12px 32px;">Log In</a>
-                <a href="{% url 'signup' %}" class="btn" style="padding:12px 32px;">Sign Up</a>
-            </div>
         </div>
     </div>
 

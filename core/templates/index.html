@@ -650,11 +650,11 @@
             <li><a href="{% url 'index' %}">Home</a></li>
             <li><a href="{% url 'explore' %}">Explore</a></li>
             <li><a href="{% url 'write' %}">Write</a></li>
-        
+            {% if user.is_authenticated %}
                 <li>
                     <a href="{% url 'profile' %}" class="user-badge">
-                        <div class="avatar"></div>
-                        <span></span>
+                        <div class="avatar">{{ user.first_name|first|upper }}</div>
+                        <span>{{ user.first_name }}</span>
                     </a>
                 </li>
                 <li>
@@ -663,30 +663,32 @@
                         <button type="submit">Log Out</button>
                     </form>
                 </li>
-        
+            {% else %}
                 <li><a href="{% url 'login' %}">Log In</a></li>
                 <li><a href="{% url 'signup' %}" class="btn-primary">Sign Up</a></li>
+            {% endif %}
         </ul>
     </nav>
 
     <div class="drawer-overlay" id="drawerOverlay"></div>
     <div class="mobile-drawer" id="mobileDrawer">
         <div id="drawerUserSection">
+            {% if user.is_authenticated %}
                 <a href="{% url 'profile' %}" class="drawer-user">
-                    <div class="avatar"></div>
+                    <div class="avatar">{{ user.first_name|first|upper }}</div>
                     <div class="info">
-                        <span class="name"></span>
-                        <span class="email"></span>
+                        <span class="name">{{ user.first_name }} {{ user.last_name }}</span>
+                        <span class="email">{{ user.email }}</span>
                     </div>
                 </a>
                 <form method="post" action="{% url 'logout' %}" style="margin-top:8px;">
                     {% csrf_token %}
                     <button type="submit" style="width:100%;padding:14px 20px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-secondary);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:6px;">Log Out</button>
                 </form>
-            
+            {% else %}
                 <a href="{% url 'login' %}" style="padding:14px 20px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-secondary);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:6px;text-decoration:none;display:flex;align-items:center;justify-content:space-between;">Log In</a>
                 <a href="{% url 'signup' %}" style="padding:14px 20px;border:1px solid var(--gold-deep);background:linear-gradient(135deg,var(--gold-dark),var(--gold-deep));color:var(--black);font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:6px;text-decoration:none;display:flex;align-items:center;justify-content:space-between;font-weight:700;">Sign Up</a>
-        
+            {% endif %}
         </div>
         <div class="drawer-divider"></div>
         <a href="{% url 'index' %}">Home</a>
@@ -848,10 +850,10 @@
             <div class="footer-section">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="explore.html">Explore</a></li>
-                    <li><a href="write.html">Write</a></li>
-                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li><a href="{% url 'explore' %}">Explore</a></li>
+                    <li><a href="{% url 'write' %}">Write</a></li>
+                    <li><a href="{% url 'signup' %}">Sign Up</a></li>
                 </ul>
             </div>
             <div class="footer-section">
